@@ -53,7 +53,7 @@ struct h8_3069f_sci {
 #define H8_3069F_SCI_SSR_TDRE	(1<<7)	/* 送信完了 */
 
 static struct {
- volatile struct h8_3069f_sci *sci;
+	volatile struct h8_3069f_sci *sci;
 } regs[SERIAL_SCI_NUM] = {
 	{ H8_3069F_SCI0 },
 	{ H8_3069F_SCI1 },
@@ -61,7 +61,7 @@ static struct {
 };
 
 /* デバイス初期化 */
-int serial_init(int index){
+int serial_init(int index) {
 	volatile struct h8_3069f_sci *sci = regs[index].sci;
 
 	sci->scr = 0;
@@ -73,23 +73,42 @@ int serial_init(int index){
 	return 0;
 }
 
-/*受信可能か？ */
-int serial_is_send_enable(int index){
+/* 送信可能か？ */
+int serial_is_send_enable(int index) {
 	volatile struct h8_3069f_sci *sci = regs[index].sci;
 	return (sci->ssr & H8_3069F_SCI_SSR_TDRE);
 }
 
 /* 1文字送信 */
-int serial_send_byte(int index, unsigned char c){
+int serial_send_byte(int index, unsigned char c) {
 	volatile struct h8_3069f_sci *sci = regs[index].sci;
 
 	/* 送信可能になるまで待つ */
-	while(!serial_is_send_enable(index));
+	while (!serial_is_send_enable(index));
 
 	sci->tdr = c;
 	sci->ssr &= ~H8_3069F_SCI_SSR_TDRE; /* 送信開始 */
-	
+
 	return 0;
 }
 
+/* 受信可能か? */
+int serial_is_recv_enable(int index) {
+	volatile struct h8_3069f_sci *sci = regs[index].sci;
 
+	return (sci->ssr & H8_3069F_SCI_SSR_RDRF);
+}
+
+/* 1文字受信 */
+unsigned char serial_recv_byte(int index) {
+	volatile struct h8_3069f_sci *sci = regs[index].sci;
+	unsigned char c;
+
+	/* 受信文字が来るまで待つ */
+	while (!serial_is_recv_enable(index));
+
+	c = sci->rdr;
+	sci->ssr &= ~H8_3069_SCI_SSR_RDRF;	/* 受信完了 */
+
+	return c;
+}
