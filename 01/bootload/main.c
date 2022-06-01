@@ -1,6 +1,7 @@
 #include "defines.h"
 #include "serial.h"
 #include "xmodem.h"
+#include "elf.h"
 #include "lib.h"
 
 static int init(void) {
@@ -62,7 +63,7 @@ int main(void) {
 		puts("kzload> ");	/* プロンプト文字の表示 */
 		gets(buf);			/* シリアルからのコマンドを受信 */
 
-		if (!strcmp(buf, "load")) {
+		if (!strcmp(buf, "load")) {		/* XMODEMでのファイルのダウンロード */
 			loadbuf = (char *)(&buffer_start);
 			size = xmodem_recv(loadbuf);
 			wait();
