@@ -26,7 +26,7 @@ struct elf_header {
     short section_header_size;      /* セクション・ヘッダのサイズ */
     short section_header_num;       /* セクション・ヘッダの個数 */
     short section_name_index;       /* セクション名を格納するセクション */
-}
+};
 
 struct elf_program_header {
     long type;          /* セグメントの種別 */
@@ -37,22 +37,22 @@ struct elf_program_header {
     long memory_size;   /* メモリ上でのサイズ */
     long flags;         /* 各種フラグ */
     long align;         /* アライメント */
-}
+};
 
 /* ELFヘッダのチェック */
 static int elf_check(struct elf_header *header) {
     /* マジックナンバーのチェック */
-    if (memcmp(header->magic, "\x7f" "ELF", 4)) return -1;
+    if(memcmp(header->id.magic, "\x7f" "ELF", 4)) return -1;
 
     /* 各種パラメータのチェック */
-    if (header->id.class != 1) return -1;
-    if (header->id.formta != 2) return -1;
-    if (header->id.version != 1) return -1;
-    if (header->type != 2) return -1;
-    if (header->version != 1) return -1;
+    if(header->id.class != 1) return -1;
+    if(header->id.format != 2) return -1;
+    if(header->id.version != 1) return -1;
+    if(header->type != 2) return -1;
+    if(header->version != 1) return -1;
 
     /* アーキテクチャがH8であることのチェック */
-    if ((header->arch != 46) && (header->arch != 47)) return -1;
+    if((header->arch != 46) && (header->arch != 47)) return -1;
 
     return 0;
 }
@@ -62,13 +62,13 @@ static int elf_load_program(struct elf_header *header) {
     int i;
     struct elf_program_header *phdr;
 
-    for (i = 0; i < header->program_header_num; i++) {  /* セグメント単位でループする */
+    for(i = 0; i < header->program_header_num; i++) {  /* セグメント単位でループする */
         /* プログラム・ヘッダの取得 */
         phdr = (struct elf_program_header *)
             ((char *)header + header->program_header_offset +
                 header->program_header_size * i);
 
-        if (phdr->type != 1)continue; /* ロード可能なセグメントか? */
+        if(phdr->type != 1)continue; /* ロード可能なセグメントか? */
 
         /* 実験用に、実際にロードせずにセグメント情報を表示する */
         putxval(phdr->offset, 6); puts(" ");
@@ -88,10 +88,10 @@ int elf_load(char *buf) {
     struct elf_header *header = (struct elf_header *)buf;
 
     /* ELFヘッダのチェック */
-    if (elf_check(header) < 0) return -1;
+    if(elf_check(header) < 0) return -1;
 
     /* セグメント単位でのロード */
-    if (elf_load_program(header) < 0)return -1;
+    if(elf_load_program(header) < 0)return -1;
 
     return 0;
 }
