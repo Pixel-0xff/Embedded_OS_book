@@ -73,14 +73,14 @@ int main(void) {
 				puts("\nXMODEM receive succeeded.\n");
 			}
 		}
-		else if (!strcmp(buf, "dump")) {
+		else if (!strcmp(buf, "dump")) {	/* メモリの16進ダンプ出力 */
 			puts("size: ");
 			putxval(size, 0);
 			puts("\n");
 			dump(loadbuf, size);
 		}
-		else if (!strcmp(buf, "run")) {
-			elf_load(loadbuf);
+		else if (!strcmp(buf, "run")) {		/* ELF形式ファイルの実行 */
+			elf_load(loadbuf);				/* メモリ上にロード */
 		}
 		else {
 			puts("unknown.\n");
