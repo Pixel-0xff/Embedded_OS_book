@@ -70,28 +70,25 @@ static int elf_load_program(struct elf_header *header) {
 
         if(phdr->type != 1)continue; /* ロード可能なセグメントか? */
 
-        /* 実験用に、実際にロードせずにセグメント情報を表示する */
-        putxval(phdr->offset, 6); puts(" ");
-        putxval(phdr->virtual_addr, 8); puts(" ");
-        putxval(phdr->physical_addr, 8); puts(" ");
-        putxval(phdr->file_size, 5); puts(" ");
-        putxval(phdr->memory_size, 5); puts(" ");
-        putxval(phdr->flags, 2); puts(" ");
-        putxval(phdr->align, 2); puts(" ");
+        memcpy((char *)phdr->physical_addr, (char *)header + phdr->offset,
+            phdr->file_size);
+
+        memset((char *)phdr->physical_addr + phdr->file_size, 0,
+            phdr->memory_size - phdr->file_size);
     }
 
     return 0;
 }
 
 /* ELF形式を解析 */
-int elf_load(char *buf) {
+char *elf_load(char *buf) {
     struct elf_header *header = (struct elf_header *)buf;
 
     /* ELFヘッダのチェック */
-    if(elf_check(header) < 0) return -1;
+    if(elf_check(header) < 0) return NULL;
 
     /* セグメント単位でのロード */
-    if(elf_load_program(header) < 0)return -1;
+    if(elf_load_program(header) < 0)return NULL;
 
-    return 0;
+    return (char *)header->entry_point;
 }
