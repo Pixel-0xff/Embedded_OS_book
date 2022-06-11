@@ -12,6 +12,9 @@ static int init(void) {
 	memcpy(&data_start, &erodata, (long)&edata - (long)&data_start);
 	memset(&bss_start, 0, (long)&ebss - (long)&bss_start);
 
+	/* ソフトウェア・割り込みベクタを初期化する */
+	softvec_init();
+
 	/* シリアルの初期化 */
 	serial_init(SERIAL_DEFAULT_DEVICE);
 
@@ -74,6 +77,7 @@ int main(void) {
 			}
 			else {
 				puts("\nXMODEM receive succeeded.\n");
+				continue;
 			}
 		}
 		else if(!strcmp(buf, "dump")) {	/* メモリの16進ダンプ出力 */
@@ -82,8 +86,8 @@ int main(void) {
 			puts("\n");
 			dump(loadbuf, size);
 		}
-		else if(!strcmp(buf, "run")) {		/* ELF形式ファイルの実行 */
-			entry_point = elf_load(loadbuf);/* メモリ上にロード */
+		else if(!strcmp(buf, "run")) {			/* ELF形式ファイルの実行 */
+			entry_point = elf_load(loadbuf);	/* メモリ上にロード */
 			if(!entry_point) {
 				puts("run error!\n");
 			}
@@ -101,3 +105,4 @@ int main(void) {
 
 		return 0;
 	}
+}
