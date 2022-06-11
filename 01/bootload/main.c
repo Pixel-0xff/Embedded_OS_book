@@ -60,6 +60,8 @@ int main(void) {
 	char *entry_point;
 	void (*f)(void);
 
+	INTR_DISABLE;	/* 割り込み無効にする */
+
 	init();
 
 	puts("kzload (kozos boot loader) started.\n");
